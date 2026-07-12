@@ -99,15 +99,16 @@ export async function getQuote({ tokenIn, tokenOut, amount, swapper, slippageTol
   return response.json()
 }
 
-export async function createSwapTransaction(quote: QuoteResponse, signature?: string): Promise<SwapResponse> {
-  // Pass the entire quote response, not just quote.quote
+export async function createSwapTransaction(quoteResponse: QuoteResponse, signature?: string): Promise<SwapResponse> {
   const body: Record<string, unknown> = {
-    quote: quote,
+    quote: quoteResponse.quote,
     simulateTransaction: false,
   }
 
-  if (signature && quote.permitData) {
+  // Include signature AND permitData together when permit is used
+  if (signature && quoteResponse.permitData) {
     body.signature = signature
+    body.permitData = quoteResponse.permitData
   }
 
   const response = await fetch('/api/uniswap/swap', {
