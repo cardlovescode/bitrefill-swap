@@ -24,6 +24,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json()
+    console.log('Uniswap quote response:', JSON.stringify(data, null, 2))
     return NextResponse.json(data)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'

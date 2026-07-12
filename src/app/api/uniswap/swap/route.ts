@@ -6,6 +6,7 @@ const API_KEY = process.env.NEXT_PUBLIC_UNISWAP_API_KEY || ''
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    console.log('Uniswap swap request:', JSON.stringify(body, null, 2))
 
     const response = await fetch(`${UNISWAP_API_URL}/swap`, {
       method: 'POST',
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json()
+    console.log('Uniswap swap response:', JSON.stringify(data, null, 2))
     return NextResponse.json(data)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
