@@ -96,7 +96,7 @@ export async function pollInvoiceUntilComplete(
     const invoice = await getInvoice(invoiceId)
     onStatusChange?.(invoice.status, attempts)
 
-    if (invoice.status === 'complete') {
+    if (invoice.status === 'complete' || invoice.status === 'all_delivered') {
       const orderId = invoice.orders[0]?.id
       if (orderId) {
         const order = await getOrder(orderId)

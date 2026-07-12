@@ -49,6 +49,8 @@ export type InvoiceStatus =
   | 'payment_received'
   | 'processing'
   | 'complete'
+  | 'all_delivered'
+  | 'partially_delivered'
   | 'expired'
   | 'failed'
 
