@@ -54,7 +54,7 @@ export function useInvoicePolling() {
         setInvoice(invoiceData)
         setCurrentStatus(invoiceData.status)
 
-        if (invoiceData.status === 'complete') {
+        if (invoiceData.status === 'complete' || invoiceData.status === 'all_delivered') {
           const orderId = invoiceData.orders[0]?.id
           if (orderId) {
             const order = await getOrder(orderId)

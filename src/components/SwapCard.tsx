@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react'
 import { useSendTransaction, useWriteContract, useSignTypedData } from 'wagmi'
 import { waitForTransactionReceipt } from '@wagmi/core'
@@ -225,15 +225,24 @@ export function SwapCard() {
     }
   }, [address, selectedToken, selectedDenomination, quote, formattedQuote, isDirectUsdc, writeContractAsync, sendTransactionAsync, signTypedDataAsync, invoicePolling])
 
-  if (invoicePolling.redemptionCode && state !== 'COMPLETE') {
-    pollComplete(invoicePolling.redemptionCode)
-  }
-  if (invoicePolling.timedOut && state !== 'TIMEOUT') {
-    pollTimeout()
-  }
-  if (invoicePolling.error && state !== 'FAILED') {
-    pollError(invoicePolling.error)
-  }
+  // Sync polling results to store via useEffect (not during render)
+  useEffect(() => {
+    if (invoicePolling.redemptionCode && state !== 'COMPLETE') {
+      pollComplete(invoicePolling.redemptionCode)
+    }
+  }, [invoicePolling.redemptionCode, state, pollComplete])
+
+  useEffect(() => {
+    if (invoicePolling.timedOut && state !== 'TIMEOUT') {
+      pollTimeout()
+    }
+  }, [invoicePolling.timedOut, state, pollTimeout])
+
+  useEffect(() => {
+    if (invoicePolling.error && state !== 'FAILED') {
+      pollError(invoicePolling.error)
+    }
+  }, [invoicePolling.error, state, pollError])
 
   const handleReset = () => {
     reset()

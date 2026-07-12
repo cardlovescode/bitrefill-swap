@@ -82,7 +82,17 @@ export async function getOrder(orderId: string): Promise<OrderResponse> {
 
   const json = await response.json()
   // API returns { meta, data } structure - extract the data field
-  return json.data || json
+  const data = json.data || json
+  // Transform snake_case to camelCase for redemption_info
+  return {
+    id: data.id,
+    status: data.status,
+    redemptionInfo: data.redemption_info ? {
+      code: data.redemption_info.code,
+      pin: data.redemption_info.pin,
+      instructions: data.redemption_info.instructions,
+    } : undefined,
+  }
 }
 
 export async function pollInvoiceUntilComplete(
