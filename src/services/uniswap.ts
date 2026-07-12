@@ -1,7 +1,5 @@
 import { CHAIN_ID } from '@/lib/constants'
 
-const API_KEY = process.env.NEXT_PUBLIC_UNISWAP_API_KEY || ''
-const BASE_URL = 'https://trade-api.gateway.uniswap.org/v1'
 const NATIVE_ETH_FOR_API = '0x0000000000000000000000000000000000000000'
 const NATIVE_ADDRESSES = ['0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', '0x0000000000000000000000000000000000000000']
 
@@ -62,22 +60,25 @@ const isNativeEth = (address: string) =>
 export async function checkApproval(tokenAddress: `0x${string}`, amount: string, walletAddress: `0x${string}`): Promise<ApprovalResponse> {
   if (isNativeEth(tokenAddress)) return {}
 
-  const response = await fetch(`${BASE_URL}/check_approval`, {
+  const response = await fetch('/api/uniswap/check-approval', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token: tokenAddress, amount, walletAddress, chainId: CHAIN_ID }),
   })
 
-  if (!response.ok) throw new Error(`Approval check failed: ${await response.text()}`)
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.error || 'Approval check failed')
+  }
   return response.json()
 }
 
 export async function getQuote({ tokenIn, tokenOut, amount, swapper, slippageTolerance = 0.5, type = 'EXACT_INPUT' }: QuoteRequest): Promise<QuoteResponse> {
   const apiTokenIn = isNativeEth(tokenIn) ? NATIVE_ETH_FOR_API : tokenIn
 
-  const response = await fetch(`${BASE_URL}/quote`, {
+  const response = await fetch('/api/uniswap/quote', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       tokenIn: apiTokenIn,
       tokenOut,
@@ -91,7 +92,10 @@ export async function getQuote({ tokenIn, tokenOut, amount, swapper, slippageTol
     }),
   })
 
-  if (!response.ok) throw new Error(`Quote failed: ${await response.text()}`)
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.error || 'Quote failed')
+  }
   return response.json()
 }
 
@@ -103,13 +107,16 @@ export async function createSwapTransaction(quote: QuoteResponse, signature?: st
     body.permitData = quote.permitData
   }
 
-  const response = await fetch(`${BASE_URL}/swap`, {
+  const response = await fetch('/api/uniswap/swap', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
 
-  if (!response.ok) throw new Error(`Swap transaction creation failed: ${await response.text()}`)
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.error || 'Swap transaction creation failed')
+  }
   return response.json()
 }
 
