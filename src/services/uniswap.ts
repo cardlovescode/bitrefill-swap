@@ -100,7 +100,11 @@ export async function getQuote({ tokenIn, tokenOut, amount, swapper, slippageTol
 }
 
 export async function createSwapTransaction(quote: QuoteResponse, signature?: string): Promise<SwapResponse> {
-  const body: Record<string, unknown> = { quote: quote.quote, simulateTransaction: false }
+  const body: Record<string, unknown> = {
+    quote: quote.quote,
+    requestId: quote.requestId,
+    simulateTransaction: false,
+  }
 
   if (signature && quote.permitData) {
     body.signature = signature
