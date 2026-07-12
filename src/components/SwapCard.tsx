@@ -3,6 +3,8 @@
 import { useState, useCallback } from 'react'
 import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react'
 import { useSendTransaction, useWriteContract, useSignTypedData } from 'wagmi'
+import { waitForTransactionReceipt } from '@wagmi/core'
+import { config } from '@/lib/wagmi'
 import { base } from '@reown/appkit/networks'
 import { parseUnits, erc20Abi } from 'viem'
 import { motion } from 'framer-motion'
@@ -187,6 +189,8 @@ export function SwapCard() {
         value: BigInt(swapTx.swap.value || '0'),
         chainId: CHAIN_ID,
       })
+      // Wait for swap to confirm on-chain before proceeding
+      await waitForTransactionReceipt(config, { hash: swapTxHash })
       swapSuccess(swapTxHash)
 
       startSendUsdc()
@@ -199,6 +203,8 @@ export function SwapCard() {
         args: [invoice.payment.address, usdcAmount],
         chainId: CHAIN_ID,
       })
+      // Wait for USDC transfer to confirm
+      await waitForTransactionReceipt(config, { hash: sendTxHash })
       sendUsdcSuccess(sendTxHash)
 
       invoicePolling.startPolling(invoice.id)
