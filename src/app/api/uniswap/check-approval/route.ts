@@ -12,6 +12,7 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': API_KEY,
+        'x-universal-router-version': '2.0',
       },
       body: JSON.stringify(body),
     })
